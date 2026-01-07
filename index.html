@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой слайдер изображений</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-images"></i> Простой слайдер изображений</h1>
+        <p class="subtitle">Навигация с помощью кнопок или клавиш стрелок</p>
+        
+        <div class="slider-container">
+            <div class="slider-wrapper">
+                <div class="slider">
+                    <!-- Изображения будут добавлены через JavaScript -->
+                </div>
+                
+                <button class="slider-btn prev-btn" aria-label="Предыдущее изображение">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <button class="slider-btn next-btn" aria-label="Следующее изображение">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="image-counter">
+                    <span id="current-image">1</span> / <span id="total-images">5</span>
+                </div>
+                
+                <div class="image-title">
+                    <h3 id="image-title-text">Горный пейзаж</h3>
+                </div>
+            </div>
+            
+            <div class="navigation-dots">
+                <!-- Точки навигации будут добавлены через JavaScript -->
+            </div>
+            
+            <div class="controls">
+                <div class="auto-play-control">
+                    <button id="auto-play-toggle" class="control-btn">
+                        <i class="fas fa-play"></i> Автопрокрутка
+                    </button>
+                    <div class="speed-control">
+                        <span>Скорость:</span>
+                        <input type="range" id="speed-slider" min="1" max="10" value="5">
+                        <span id="speed-value">5с</span>
+                    </div>
+                </div>
+                
+                <div class="keyboard-hint">
+                    <i class="fas fa-keyboard"></i> Используйте клавиши ← и → для навигации
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Функциональность слайдера:</h3>
+            <ul>
+                <li>Кнопки "вперед" и "назад" для навигации</li>
+                <li>Зацикливание слайдера (последнее → первое, первое → последнее)</li>
+                <li>Отображение текущего номера изображения</li>
+                <li>Навигация с помощью точек под слайдером</li>
+                <li>Автопрокрутка с регулировкой скорости</li>
+                <li>Управление клавиатурой (стрелки влево/вправо)</li>
+                <li>Адаптивный дизайн для мобильных устройств</li>
+            </ul>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Слайдер изображений &copy; 2023 | Создано с помощью HTML, CSS и JavaScript</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
+23:05
+/* Общие стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 2.5rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+h1 i {
+    color: #3498db;
+    margin-right: 15px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #7f8c8d;
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+}
+
+/* Стили слайдера */
+.slider-container {
+    background-color: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.slider-wrapper {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    margin-bottom: 25px;
+}
+
+.slider {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+    min-width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+/* Кнопки навигации */
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(52, 152, 219, 0.85);
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+.slider-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.slider-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.prev-btn {
+    left: 25px;
+}
+
+.next-btn {
+    right: 25px;
+}
+
+/* Счетчик изображений */
+.image-counter {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    z-index: 10;
+    backdrop-filter: blur(5px);
+}
+
+/* Заголовок изображения */
+.image-title {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    max-width: 70%;
+    z-index: 10;
+    backdrop-filter: blur(5px);
+}
+
+#image-title-text {
+    font-size: 1.3rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Точки навигации */
+.navigation-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #bdc3c7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot:hover {
+    background-color: #7f8c8d;
+    transform: scale(1.2);
+}
+
+.dot.active {
+    background-color: #3498db;
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+}
+
+/* Панель управления */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.auto-play-control {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.control-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.control-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
